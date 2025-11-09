@@ -42,7 +42,7 @@ async function run() {
     app.get("/movies/:id", async (req, res) => {
       const query = { _id: new ObjectId(req.params.id) };
       const movie = await myCollection.findOne(query);
-      res.send(movie)
+      res.send(movie);
     });
 
     //post movies
@@ -50,6 +50,14 @@ async function run() {
       const newMovies = req.body;
       const result = await myCollection.insertOne(newMovies);
       res.send(result);
+    });
+
+    //update movies
+    app.patch("/movies/:id", async (req, res) => {
+      const query = { _id: new ObjectId(req.params.id) };
+      const update = { $set: { title: req.body.title, addedBy: req.body.email } };
+      const result = await myCollection.updateOne(query, update);
+      res.send(result)
     });
 
     await client.connect();
