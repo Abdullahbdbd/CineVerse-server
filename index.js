@@ -1,13 +1,13 @@
-const express = require('express')
-const cors = require('cors');
-require('dotenv').config()
-const { MongoClient, ServerApiVersion } = require('mongodb');
-const app = express()
-const port =process.env.PORT || 3000;
+const express = require("express");
+const cors = require("cors");
+require("dotenv").config();
+const { MongoClient, ServerApiVersion } = require("mongodb");
+const app = express();
+const port = process.env.PORT || 3000;
 
 //middleware
-app.use(cors())
-app.use(express.json())
+app.use(cors());
+app.use(express.json());
 
 // CineVerse
 // ivC2PIsv18ztdtAs
@@ -19,26 +19,32 @@ const client = new MongoClient(uri, {
     version: ServerApiVersion.v1,
     strict: true,
     deprecationErrors: true,
-  }
+  },
 });
 
-
-app.get('/', (req, res) => {
-  res.send('Hello World!')
-})
-
+app.get("/", (req, res) => {
+  res.send("Hello World!");
+});
 
 async function run() {
   try {
+    const moviesDB = client.db("movieDB");
+    const myCollection = moviesDB.collection("movieMenu");
+
+    //get movies
+    app.get("/movies", async (req, res) => {
+      const cursor = myCollection.find();
+      const allValues = await cursor.toArray();
+      res.send(allValues)
+    });
+
     await client.connect();
     await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
-  } 
-  finally {
+  } finally {
   }
 }
 run().catch(console.dir);
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
+  console.log(`Example app listening on port ${port}`);
+});
