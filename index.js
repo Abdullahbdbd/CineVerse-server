@@ -38,11 +38,18 @@ async function run() {
       res.send(allValues);
     });
 
+    // get single movies
+    app.get("/movies/:id", async (req, res) => {
+      const query = { _id: new ObjectId(req.params.id) };
+      const movie = await myCollection.findOne(query);
+      res.send(movie)
+    });
+
     //post movies
     app.post("/movies", async (req, res) => {
       const newMovies = req.body;
       const result = await myCollection.insertOne(newMovies);
-      res.send(result)
+      res.send(result);
     });
 
     await client.connect();
