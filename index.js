@@ -60,6 +60,13 @@ async function run() {
       res.send(result)
     });
 
+    //delete movies
+    app.delete("/movies/:id",async(req,res)=>{
+        const query = { _id: new ObjectId(req.params.id) };
+        const deleteResult = await myCollection.deleteOne(query);
+        res.send(deleteResult)
+    })
+
     await client.connect();
     await client.db("admin").command({ ping: 1 });
   } finally {
