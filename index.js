@@ -45,6 +45,13 @@ async function run() {
       res.send(movie);
     });
 
+    // get top rated movie
+    app.get("/topMovies", async (req, res) => {
+      const cursor = myCollection.find().sort({rating: -1}).limit(5)
+      const allValues = await cursor.toArray();
+      res.send(allValues);
+    });
+
     //post movies
     app.post("/movies", async (req, res) => {
       const newMovies = req.body;
