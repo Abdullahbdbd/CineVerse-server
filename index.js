@@ -33,7 +33,7 @@ async function run() {
 
     //get movies
     app.get("/movies", async (req, res) => {
-      const cursor = myCollection.find();
+      const cursor = myCollection.find().sort({releaseYear: -1,});
       const allValues = await cursor.toArray();
       res.send(allValues);
     });
@@ -48,6 +48,27 @@ async function run() {
     // get top rated movie
     app.get("/topMovies", async (req, res) => {
       const cursor = myCollection.find().sort({rating: -1}).limit(5)
+      const allValues = await cursor.toArray();
+      res.send(allValues);
+    });
+
+    // get action movie
+     app.get("/actionMovies", async (req, res) => {
+      const cursor = myCollection.find({ genre: "Action" })
+      const allValues = await cursor.toArray();
+      res.send(allValues);
+    });
+
+    // get drama movie
+     app.get("/dramaMovies", async (req, res) => {
+      const cursor = myCollection.find({ genre: "Drama" })
+      const allValues = await cursor.toArray();
+      res.send(allValues);
+    });
+
+    // get adventure movie
+     app.get("/adventureMovies", async (req, res) => {
+      const cursor = myCollection.find({ genre: "Adventure" })
       const allValues = await cursor.toArray();
       res.send(allValues);
     });
