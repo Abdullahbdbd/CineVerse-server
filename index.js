@@ -33,7 +33,21 @@ async function run() {
 
     //get movies
     app.get("/movies", async (req, res) => {
-      const cursor = myCollection.find().sort({releaseYear: -1,});
+      const cursor = myCollection.find().sort({releaseYear: 1,});
+      const allValues = await cursor.toArray();
+      res.send(allValues);
+    });
+
+    // get My Collection
+    app.get("/myCollection", async (req, res) => {
+      
+       const email = req.query.addedBy;
+       const query ={}
+       if(email){
+        query.addedBy=email
+       }
+
+      const cursor = myCollection.find(query)
       const allValues = await cursor.toArray();
       res.send(allValues);
     });
@@ -72,6 +86,14 @@ async function run() {
       const allValues = await cursor.toArray();
       res.send(allValues);
     });
+
+    // get latest movie
+     app.get("/latestMovie", async (req, res) => {
+      const cursor = myCollection.find().sort({ created_at: -1 }).limit(6)
+      const allValues = await cursor.toArray();
+      res.send(allValues);
+    });
+
 
     //post movies
     app.post("/movies", async (req, res) => {
