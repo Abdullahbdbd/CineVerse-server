@@ -30,6 +30,30 @@ async function run() {
   try {
     const moviesDB = client.db("movieDB");
     const myCollection = moviesDB.collection("movieMenu");
+    const usersCollection = moviesDB.collection("users");
+
+    //get users
+    app.get("/users", async (req, res) => {
+      const cursor = usersCollection.find();
+      const allValues = await cursor.toArray();
+      res.send(allValues);
+    });
+
+    //post users
+    app.post("/users", async (req, res) => {
+      const newUsers = req.body;
+
+      const email = req.body.email;
+      const query = {email: email};
+      const existingUser = await usersCollection.findOne(query);
+      if(existingUser){
+        res.send({message: 'User already exits'})
+      }
+      else{
+        const result = await usersCollection.insertOne(newUsers);
+        res.send(result);
+      }
+    });
 
     //get movies
     app.get("/movies", async (req, res) => {
