@@ -33,21 +33,20 @@ async function run() {
 
     //get movies
     app.get("/movies", async (req, res) => {
-      const cursor = myCollection.find().sort({releaseYear: 1,});
+      const cursor = myCollection.find().sort({ releaseYear: 1 });
       const allValues = await cursor.toArray();
       res.send(allValues);
     });
 
     // get My Collection
     app.get("/myCollection", async (req, res) => {
-      
-       const email = req.query.addedBy;
-       const query ={}
-       if(email){
-        query.addedBy=email
-       }
+      const email = req.query.addedBy;
+      const query = {};
+      if (email) {
+        query.addedBy = email;
+      }
 
-      const cursor = myCollection.find(query)
+      const cursor = myCollection.find(query);
       const allValues = await cursor.toArray();
       res.send(allValues);
     });
@@ -61,39 +60,38 @@ async function run() {
 
     // get top rated movie
     app.get("/topMovies", async (req, res) => {
-      const cursor = myCollection.find().sort({rating: -1}).limit(5)
+      const cursor = myCollection.find().sort({ rating: -1 }).limit(5);
       const allValues = await cursor.toArray();
       res.send(allValues);
     });
 
     // get action movie
-     app.get("/actionMovies", async (req, res) => {
-      const cursor = myCollection.find({ genre: "Action" })
+    app.get("/actionMovies", async (req, res) => {
+      const cursor = myCollection.find({ genre: "Action" });
       const allValues = await cursor.toArray();
       res.send(allValues);
     });
 
     // get drama movie
-     app.get("/dramaMovies", async (req, res) => {
-      const cursor = myCollection.find({ genre: "Drama" })
+    app.get("/dramaMovies", async (req, res) => {
+      const cursor = myCollection.find({ genre: "Drama" });
       const allValues = await cursor.toArray();
       res.send(allValues);
     });
 
     // get adventure movie
-     app.get("/adventureMovies", async (req, res) => {
-      const cursor = myCollection.find({ genre: "Adventure" })
+    app.get("/adventureMovies", async (req, res) => {
+      const cursor = myCollection.find({ genre: "Adventure" });
       const allValues = await cursor.toArray();
       res.send(allValues);
     });
 
     // get latest movie
-     app.get("/latestMovie", async (req, res) => {
-      const cursor = myCollection.find().sort({ created_at: -1 }).limit(6)
+    app.get("/latestMovie", async (req, res) => {
+      const cursor = myCollection.find().sort({ created_at: -1 }).limit(6);
       const allValues = await cursor.toArray();
       res.send(allValues);
     });
-
 
     //post movies
     app.post("/movies", async (req, res) => {
@@ -102,20 +100,46 @@ async function run() {
       res.send(result);
     });
 
-    //update movies
-    app.patch("/movies/:id", async (req, res) => {
+    //get update movie
+    app.get("/movies/update/:id", async (req, res) => {
       const query = { _id: new ObjectId(req.params.id) };
-      const update = { $set: { title: req.body.title, addedBy: req.body.email } };
+      const movie = await myCollection.findOne(query);
+      res.send(movie);
+    });
+
+    //update movies
+    app.patch("/movies/update/:id", async (req, res) => {
+      const query = { _id: new ObjectId(req.params.id) };
+      const updatedMovie = req.body;
+
+      const update = {
+        $set: {
+          title: updatedMovie.title,
+          genre: updatedMovie.genre,
+          releaseYear: updatedMovie.releaseYear,
+          director: updatedMovie.director,
+          cast: updatedMovie.cast,
+          rating: updatedMovie.rating,
+          duration: updatedMovie.duration,
+          posterUrl: updatedMovie.posterUrl,
+          language: updatedMovie.language,
+          country: updatedMovie.country,
+          plotSummary: updatedMovie.plotSummary,
+          created_at: updatedMovie.created_at,
+          addedBy: updatedMovie.addedBy,
+        },
+      };
+
       const result = await myCollection.updateOne(query, update);
-      res.send(result)
+      res.send(result);
     });
 
     //delete movies
-    app.delete("/movies/:id",async(req,res)=>{
-        const query = { _id: new ObjectId(req.params.id) };
-        const deleteResult = await myCollection.deleteOne(query);
-        res.send(deleteResult)
-    })
+    app.delete("/movies/:id", async (req, res) => {
+      const query = { _id: new ObjectId(req.params.id) };
+      const deleteResult = await myCollection.deleteOne(query);
+      res.send(deleteResult);
+    });
 
     await client.connect();
     await client.db("admin").command({ ping: 1 });
