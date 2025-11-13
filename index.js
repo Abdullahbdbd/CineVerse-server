@@ -31,6 +31,7 @@ async function run() {
     const moviesDB = client.db("movieDB");
     const myCollection = moviesDB.collection("movieMenu");
     const usersCollection = moviesDB.collection("users");
+    const watchListCollection = moviesDB.collection("watchList");
 
     //get users
     app.get("/users", async (req, res) => {
@@ -52,6 +53,35 @@ async function run() {
         const result = await usersCollection.insertOne(newUsers);
         res.send(result);
       }
+    });
+
+    //post movie to watchList
+    app.post("/watchList", async (req, res) => {
+      const { email, movie } = req.body;
+
+      if (!email || !movie) {
+        return res.status(400).send({ message: "Missing email or movie" });
+      }
+
+      const user = await watchListCollection.findOne({ email });
+
+      if (user) {
+        await watchListCollection.updateOne(
+          { email },
+          { $push: { movies: movie } }
+        );
+      } else {
+        await watchListCollection.insertOne({ email, movies: [movie] });
+      }
+
+      res.send({ message: "Added to watchList successfully!" });
+    });
+
+    //get movie to watchList
+    app.get("/watchList/:email", async (req, res) => {
+      const { email } = req.params;
+      const result = await watchListCollection.findOne({ email });
+      res.send(result?.movies || []);
     });
 
     //get movies
