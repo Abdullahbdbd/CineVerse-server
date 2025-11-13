@@ -44,12 +44,11 @@ async function run() {
       const newUsers = req.body;
 
       const email = req.body.email;
-      const query = {email: email};
+      const query = { email: email };
       const existingUser = await usersCollection.findOne(query);
-      if(existingUser){
-        res.send({message: 'User already exits'})
-      }
-      else{
+      if (existingUser) {
+        res.send({ message: "User already exits" });
+      } else {
         const result = await usersCollection.insertOne(newUsers);
         res.send(result);
       }
@@ -57,9 +56,29 @@ async function run() {
 
     //get movies
     app.get("/movies", async (req, res) => {
-      const cursor = myCollection.find().sort({ releaseYear: 1 });
-      const allValues = await cursor.toArray();
-      res.send(allValues);
+      try {
+        const { genres, minRating, maxRating } = req.query;
+
+        const query = {};
+        if (genres) {
+          const genreArray = genres.split(",");
+          query.genre = { $in: genreArray };
+        }
+
+        if (minRating || maxRating) {
+          query.rating = {};
+          if (minRating) query.rating.$gte = Number(minRating);
+          if (maxRating) query.rating.$lte = Number(maxRating);
+        }
+
+        const movies = await myCollection
+          .find(query)
+          .sort({ releaseYear: 1 })
+          .toArray();
+        res.send(movies);
+      } catch (error) {
+        res.status(500).send({ message: "Error fetching movies", error });
+      }
     });
 
     // get My Collection
